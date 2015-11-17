@@ -36,7 +36,7 @@ namespace Luksmedicus
             InitializeCustomeDatePicker();
             FillLboxFirmi();
             FillCboxFirmi();
-
+            
         }
 
         private void InitializeCustomeDatePicker()
@@ -140,7 +140,7 @@ namespace Luksmedicus
                 {
                     //TODO FILL lbox PREGLEDI
                     gbNovPregled.IsEnabled = true;
-                    FilllboxPregledi(result);
+                    FillLboxPregledi(result);
                     FillgboxVraboten(result);
                 }
                 else
@@ -153,7 +153,7 @@ namespace Luksmedicus
             }
         }
 
-        private void FilllboxPregledi(int result)
+        private void FillLboxPregledi(int result)
         {
             lboxPregledi.Items.Clear();
 
@@ -161,7 +161,7 @@ namespace Luksmedicus
             {
                 con.Open();
 
-                string stm = "SELECT * FROM pregled WHERE id_vraboten='" + result + "';";
+                string stm = "SELECT * FROM pregled WHERE id_vraboten='" + result + "' ORDER BY datum DESC;";
 
                 using (SQLiteCommand cmd = new SQLiteCommand(stm, con))
                 {
@@ -169,7 +169,7 @@ namespace Luksmedicus
                     {
                         while (rdr.Read())
                         {
-                            ListBoxItem item = new ListBoxItem();
+                            
                             string tip = "1";
                             switch (rdr["tip"].ToString())
                             {
@@ -186,11 +186,24 @@ namespace Luksmedicus
                                     tip = "Периодичен специфичен";
                                     break;
                                 case "5":
-                                    tip = "Насочен";
+                                    tip = "Насоче";
                                     break;
                             }
-                            //TODO среди формат и договор како да изгледат
-                            item.Content = String.Format("{0,-50}{1,-10}", tip, rdr["datum"].ToString().Split(' ')[0]);
+                            //TODO среди формат и договор како да изгледат.
+                            var date = rdr["datum"].ToString().Split(' ')[0].Trim();
+                            ListBoxItem item = new ListBoxItem();
+                            StackPanel sp = new StackPanel();
+                            sp.Orientation = Orientation.Horizontal;
+                            Label lb = new Label();
+                            lb.Content = tip;
+                            lb.Width = 300;
+                            sp.Children.Add(lb);
+                            Label ld = new Label();
+                            ld.Content = date;
+                            lb.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            sp.Children.Add(ld);
+                            item.Tag = rdr["id"];
+                            item.Content = sp;
                             item.Background = (rdr["plateno"].ToString() == "True" ? Brushes.LightGreen : Brushes.Tomato);
                             lboxPregledi.Items.Add(item);
                         }
@@ -212,30 +225,30 @@ namespace Luksmedicus
         }
 
         //Enables-Disables fields in GroupBoxVraboten to toggle value
-        private void toggleGBoxVraboten(bool toggle)
+        private void toggleCustomDatePicker(bool toggle)
         {
-            tbImeVraboten.IsReadOnly = toggle;
-            tbMestoRagjanje.IsReadOnly = toggle;
-            tbProfesija.IsReadOnly = toggle;
-            tbRabotnoMesto.IsReadOnly = toggle;
             cboxDay.IsEnabled = toggle;
             cboxMonth.IsEnabled = toggle;
             cboxYear.IsEnabled = toggle;
         }
 
+        private void ToggleReadOnlyGboxVraboten(bool toggle)
+        {
+            
+            tbImeVraboten.IsReadOnly = toggle;
+            tbMestoRagjanje.IsReadOnly = toggle;
+            tbProfesija.IsReadOnly = toggle;
+            tbRabotnoMesto.IsReadOnly = toggle;
+        }
+
         private void FillgboxVraboten(int id)
         {
-            gbVraboten.IsEnabled = true;
-            tbImeVraboten.Text = "";
-            tbMestoRagjanje.Text = "";
-            tbProfesija.Text = "";
-            tbRabotnoMesto.Text = "";
-            toggleGBoxVraboten(true);
-            cboxDay.SelectedIndex = 0;
-            cboxMonth.SelectedIndex = 0;
-            cboxYear.SelectedIndex = 0;
+            ToggleReadOnlyGboxVraboten(true);
+            ClearGboxVraboteni();
+            toggleCustomDatePicker(false);
             btnVnesiVraboten.IsEnabled = false;
-
+            gbVraboten.IsEnabled = true;
+            gbPregledi.IsEnabled = true;
             using (SQLiteConnection con = new SQLiteConnection(ConfigurationManager.ConnectionStrings["Database"].ToString()))
             {
                 con.Open();
@@ -252,9 +265,9 @@ namespace Luksmedicus
                             tbMestoRagjanje.Text = rdr["mesto_rag"].ToString();
                             tbProfesija.Text = rdr["profesija"].ToString();
                             tbRabotnoMesto.Text = rdr["rab_mesto"].ToString();
-
-                            // TODO fix
-                            // dpDatumRagjanje.SelectedDate = Convert.ToDateTime(rdr["datum_rag"].ToString() + " 00:00:00");
+                            
+                            //Console.WriteLine(date[0]+" "+date[1]+" "+date[2]);
+                            SetCustomDate(rdr["datum_rag"].ToString());
                         }
                     }
                 }
@@ -266,6 +279,25 @@ namespace Luksmedicus
             }
 
 
+        }
+
+        private void SetCustomDate(string dateRaw)
+        {
+            string[] date = dateRaw.Split(' ')[0].Split('.');
+            cboxDay.SelectedItem = date[0];
+            cboxMonth.SelectedItem = date[1];
+            cboxYear.SelectedItem = date[2];
+        }
+
+        private void ClearGboxVraboteni()
+        {
+            tbImeVraboten.Text = "";
+            tbMestoRagjanje.Text = "";
+            tbProfesija.Text = "";
+            tbRabotnoMesto.Text = "";
+            cboxDay.SelectedIndex = 0;
+            cboxMonth.SelectedIndex = 0;
+            cboxYear.SelectedIndex = 0;
         }
 
         private void FillCboxFirmi()
@@ -384,7 +416,15 @@ namespace Luksmedicus
 
             if (tbImeVraboten.Equals("")) { MessageBox.Show("Полето за име на вработениот не смее да биде празно", "Грешка!"); return; }
 
-            string date = cboxDay.SelectedItem.ToString() + "-" + cboxMonth.SelectedItem.ToString() +"-"+cboxYear.SelectedItem.ToString();
+            int year = Int32.Parse(cboxYear.SelectedItem.ToString());
+            int month = Int32.Parse(cboxMonth.SelectedItem.ToString());
+            int day = Int32.Parse(cboxDay.SelectedItem.ToString());
+            Console.WriteLine(year + " " + month + " " + day);
+            DateTime dt = new DateTime(year,month,day);
+            Console.WriteLine(dt.ToShortDateString());
+
+            
+
 
             string stm = "INSERT INTO vraboten(ime_prezime, rab_mesto, profesija, naziv_firma, mesto_rag, datum_rag) VALUES('" +
                tbImeVraboten.Text.ToString() + "', '" +
@@ -392,7 +432,7 @@ namespace Luksmedicus
                tbProfesija.Text.ToString() + "', '" +
                cboxFirmi.SelectedValue.ToString() + "', '" +
                tbMestoRagjanje.Text.ToString() + "', '" +
-               date + "');";
+               dt.ToString("yyyy'-'MM'-'dd' 'HH':'mm':'ss")+"');";
 
 
             sqlite_conn = new SQLiteConnection("Data Source=database.db;Version=3;New=false;Compress=True;");
@@ -405,7 +445,7 @@ namespace Luksmedicus
 
             MessageBox.Show(tbImeVraboten.Text + " e внесен во базата.", "Успешно е внесен нов вработен во фирмата " + cboxFirmi.SelectedValue.ToString());
 
-            gbVraboten.IsEnabled = false;
+            lboxVraboteni.SelectedIndex = lboxVraboteni.Items.Count - 1;
 
             FillEmployees(cboxFirmi.SelectedValue.ToString());
         }
@@ -417,22 +457,28 @@ namespace Luksmedicus
                 MessageBox.Show("Мора да одберете фирма во која ќе го внесете вработениот. ", "Грешка!");
                 return;
             }
-
+            lboxVraboteni.SelectedIndex = -1;
+            ToggleReadOnlyGboxVraboten(false);
+            toggleCustomDatePicker(true);
+            ClearGboxVraboteni();
             gbVraboten.IsEnabled = true;
+            lboxPregledi.Items.Clear();
+            btnVnesiVraboten.IsEnabled = true;
+            gbNovPregled.IsEnabled = false;
+            gbPregledi.IsEnabled = false;
         }
 
         protected void addPregled(object sender, EventArgs e)
         {
-
+            
             if (rbSistematski.IsChecked == false && rbDopolnitelen.IsChecked == false &&
-                rbSpecifichen.IsChecked == false && rbNasochen.IsChecked == false)
+                rbSpecifichen.IsChecked == false && rbNasochen.IsChecked == false && rbProshiren.IsChecked == false)
             {
                 string pom1 = rbSistematski.IsChecked.ToString();
                 MessageBox.Show("Мора да изберете тип на преглед за пациентот " + pom1, "Грешка!");
                 return;
             }
 
-            string vrabIme = "";
             int vrabID = 0;
             string strSQL1 = "SELECT id FROM vraboten WHERE ime_prezime = " + '"' + tbImeVraboten.Text.ToString() + '"' + ";";
             sqlite_conn = new SQLiteConnection("Data Source=database.db;Version=3;New=false;Compress=True;");
@@ -466,7 +512,7 @@ namespace Luksmedicus
             sqlite_cmd.ExecuteNonQuery();
             sqlite_conn.Close();
 
-            FilllboxPregledi(vrabID);
+            FillLboxPregledi(vrabID);
 
 
         }

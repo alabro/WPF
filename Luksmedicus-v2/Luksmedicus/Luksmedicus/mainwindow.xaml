@@ -123,7 +123,7 @@
                         <ListBox x:Name="lboxVraboteni" Height="500" Margin="5,0" SelectionChanged="lboxVraboteni_SelectionChanged">
                         </ListBox>
 
-                        <Button Height="30" Name="vnesinovvraboten" Margin="5" Click="addNewEmployee">Внеси нов вработен</Button>
+                        <Button Height="30" Name="btnAddEmployee" Margin="5" Click="addNewEmployee">Внеси нов вработен</Button>
 
 
                     </StackPanel>
