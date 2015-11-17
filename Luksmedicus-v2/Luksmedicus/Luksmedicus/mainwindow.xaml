@@ -1,0 +1,234 @@
+﻿<Window x:Class="Luksmedicus.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Лукс Mедикус" WindowState="Maximized" >
+
+
+    <Grid>
+        <TabControl>
+            <TabItem Header="Правни лица">
+                <Grid Margin="20">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400*"/>
+                        <ColumnDefinition Width="800*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--Vnesuvanje firma-->
+                    <GroupBox Margin="10,5,10,10"  Grid.Column="0"
+                  Background="#eee" BorderBrush="LightGray">
+                        <GroupBox.Header>
+                            <TextBlock FontSize="20">Внеси фирма</TextBlock>
+                        </GroupBox.Header>
+                        <StackPanel Margin="0,15,0,0" >
+
+                            <StackPanel Orientation="Horizontal" Margin="3">
+                                <TextBlock Margin="5,5" TextAlignment="Right" FontSize="13" Width="70">Назив:</TextBlock>
+                                <TextBox Name="vnesinaziv" Margin="5,5" Width="300"></TextBox>
+                            </StackPanel>
+
+
+                            <StackPanel Orientation="Horizontal" Margin="3">
+                                <TextBlock Margin="5,5" TextAlignment="Right" FontSize="13" Width="70">Адреса:</TextBlock>
+                                <TextBox Name="vnesiadresa" Margin="5,5" Width="300"></TextBox>
+                            </StackPanel>
+
+
+                            <StackPanel Orientation="Horizontal" Margin="3">
+                                <TextBlock Margin="5,5" TextAlignment="Right" FontSize="13" Width="70">Е.Д.Б:</TextBlock>
+                                <TextBox Name="vnesiedb" Margin="5,5" Width="300"></TextBox>
+                            </StackPanel>
+
+
+                            <StackPanel Orientation="Horizontal" Margin="3">
+                                <TextBlock Margin="5,5" TextAlignment="Right" FontSize="13" Width="70">Е.М.Б:</TextBlock>
+                                <TextBox Name="vnesiemb" Margin="5,5" Width="300"></TextBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="3">
+                                <TextBlock Margin="5,5" TextAlignment="Right" FontSize="13" Width="70">Забелешка:</TextBlock>
+                                <TextBox Name="vnesizabeleska" Margin="5,5" Width="300" Height="100" AcceptsReturn="True" TextWrapping="Wrap" />
+                            </StackPanel>
+
+
+                            <StackPanel Orientation="Horizontal" Margin="3">
+                                <Button Content="Поништи" Click="PonistiVnesuvanjeFirma" Name="PonistiVnesuvanjeFirmaBtn" Height="30" Width="80" HorizontalAlignment="Left" Margin="205,0,0,0" Background="#c9302c" Foreground="white"></Button>
+                                <Button Content="Внеси" Click="KreirajDir" Name="VnesiFirmaBtn" Height="30" Width="80" HorizontalAlignment="right" Margin="20,0,0,0" Background="#5cb85c" Foreground="white"></Button>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!--Pregled na firmi-->
+                    <GroupBox Margin="10,5,10,10" Grid.Column="1"
+                  Background="White" BorderBrush="LightGray">
+                        <GroupBox.Header>
+                            <TextBlock FontSize="20">Преглед на фирми</TextBlock>
+                        </GroupBox.Header>
+
+                        <StackPanel Margin="10">
+
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300*"/>
+                                    <ColumnDefinition Width="700*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,10,0,0" Grid.Column="0">
+                                    <TextBlock>Фирми внесени во база</TextBlock>
+                                    <TextBlock></TextBlock>
+                                    <ListBox x:Name="lboxFirmi" Height="520" ScrollViewer.CanContentScroll="true" ScrollViewer.IsDeferredScrollingEnabled="True" SelectionChanged="lboxFirmi_SelectionChanged">
+                                        <ListBoxItem>ДТИК Проинспект ДОО Скопје</ListBoxItem>
+                                        <ListBoxItem>Firma 1 236123</ListBoxItem>
+                                        <ListBoxItem>Firma 1 236123</ListBoxItem>
+                                    </ListBox>
+                                </StackPanel>
+
+                                <StackPanel Margin="10,10,0,0" Grid.Column="1">
+                                    <TextBlock>Информации за фирма:</TextBlock>
+                                    <TextBlock></TextBlock>
+                                    <TextBlock Name="imefirmainfo">Име на фирма:</TextBlock>
+                                    <TextBlock Name="adresafirmainfo">Адреса:</TextBlock>
+                                    <TextBlock Name="edbfirmainfo">ЕДБ:</TextBlock>
+                                    <TextBlock></TextBlock>
+                                    <ListBox Height="430" Name="vraboteni">
+
+                                    </ListBox>
+                                    <TextBlock TextAlignment="Right">Вкупно:</TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+
+                    </GroupBox>
+
+                </Grid>
+            </TabItem>
+
+            <!-- TAB VRABOTEN -->
+            <TabItem Header="Физички лица">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300*"/>
+                        <ColumnDefinition Width="700*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <ComboBox  Name="cboxFirmi" Margin="5,10" SelectedValuePath="Content"
+                                   SelectionChanged="cboxFirmi_SelectionChanged">
+                            <ComboBoxItem IsEnabled="False" IsSelected="True" Name="cbidef">Избери фирма (Задолжително)</ComboBoxItem>
+
+                        </ComboBox>
+
+                        <ListBox x:Name="lboxVraboteni" Height="500" Margin="5,0" SelectionChanged="lboxVraboteni_SelectionChanged">
+                        </ListBox>
+
+                        <Button Height="30" Name="vnesinovvraboten" Margin="5" Click="addNewEmployee">Внеси нов вработен</Button>
+
+
+                    </StackPanel>
+
+
+                    <StackPanel Grid.Column="1">
+                        <GroupBox x:Name="gbVraboten" Margin="10,5,10,10"  Grid.Column="0" Background="#eee" BorderBrush="LightGray" Height="300" IsEnabled="False">
+                            <GroupBox.Header>
+                                <TextBlock FontSize="20">Вработен</TextBlock>
+                            </GroupBox.Header>
+
+                            <Grid Margin="10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="500*"/>
+                                    <ColumnDefinition Width="500*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="20,0">
+                                    <TextBlock Margin="0,5,0,0"  FontSize="13">Име и презиме:</TextBlock>
+                                    <TextBox Name="tbImeVraboten"></TextBox>
+                                    <TextBlock Margin="0,5,0,0"  FontSize="13">Место на раѓање:</TextBlock>
+                                    <TextBox Name="tbMestoRagjanje"></TextBox>
+                                    <TextBlock Margin="0,5,0,0" FontSize="13">Датум на раѓање:</TextBlock>
+                                   <!-- <DatePicker Width="200" HorizontalAlignment="Left" Name="dpDatumRagjanje"></DatePicker>-->
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox Name="cboxDay" Width="50" SelectedIndex="0">
+                                            <ComboBoxItem IsEnabled="False">Ден</ComboBoxItem>
+                                        </ComboBox>
+                                        <ComboBox Name="cboxMonth" Width="50" SelectedIndex="0">
+                                            <ComboBoxItem IsEnabled="False">Мес</ComboBoxItem>
+                                        </ComboBox>
+                                        <ComboBox Name="cboxYear" Width="100" SelectedIndex="0">
+                                            <ComboBoxItem IsEnabled="False">Година</ComboBoxItem>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="20,0">
+                                    <TextBlock Margin="0,5,0,0" FontSize="13">Работно место:</TextBlock>
+                                    <TextBox Name="tbRabotnoMesto"></TextBox>
+                                    <TextBlock Margin="0,5,0,0" FontSize="13">Професија:</TextBlock>
+                                    <TextBox Name="tbProfesija"></TextBox>
+                                    <Button x:Name="btnVnesiVraboten" Width="120"
+                                            Height="30" Background="#5cb85c" Click="addEmployee"
+                                            Foreground="White" Margin="0,25,0,0" HorizontalAlignment="Right">Внеси</Button>
+                                </StackPanel>
+
+
+                            </Grid>
+
+                        </GroupBox>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="500*"/>
+                                <ColumnDefinition Width="500*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <GroupBox x:Name="gbNovPregled" Margin="10,5,10,10"  Grid.Column="0" Background="#eee" BorderBrush="LightGray" Height="300" IsEnabled="False">
+                                <GroupBox.Header>
+                                    <TextBlock FontSize="20">Нов преглед</TextBlock>
+                                </GroupBox.Header>
+
+                                <Grid>
+                                    <StackPanel Margin="10">
+                                        <TextBlock FontSize="15" Margin="0,5,0,5">Тип на преглед:</TextBlock>
+                                        <RadioButton Name="rbSistematski" Margin="3" FontSize="13">Систематски (800,00 МКД)</RadioButton>
+                                        <RadioButton Name="rbDopolnitelen" Margin="3" FontSize="13">Периодичен Дополнителен (1000,00 МКД)</RadioButton>
+                                        <RadioButton Name="rbProshiren" Margin="3" FontSize="13">Периодичен Проширен (1200,00 МКД)</RadioButton>
+                                        <RadioButton Name="rbSpecifichen" Margin="3" FontSize="13">Периодичен Специфичен (1500,00 МКД)</RadioButton>
+                                        <RadioButton Name="rbNasochen" Margin="3" FontSize="13">Насочен</RadioButton>
+                                        <TextBox Name="dpDatumPregled" Margin="3"
+                                                    Width="150" HorizontalAlignment="Left"></TextBox>
+                                        <Button Width="200" Height="30" Margin="0,40,0,0"
+                                                HorizontalAlignment="Right" Background="#5cb85c" 
+                                                Foreground="White" Click="addPregled">Внеси преглед</Button>
+                                    </StackPanel>
+                                </Grid>
+
+                            </GroupBox>
+
+
+                            <GroupBox x:Name="gbPregledi" Margin="10,5,10,10"  Grid.Column="1" Background="#eee" BorderBrush="LightGray" Height="300" IsEnabled="False">
+                                <GroupBox.Header>
+                                    <TextBlock FontSize="20">Прегледи</TextBlock>
+                                </GroupBox.Header>
+
+                                <Grid>
+                                    <StackPanel>
+                                        <TextBlock>Прегледи на пациентот</TextBlock>
+                                        <ListBox x:Name="lboxPregledi" Margin="0,5,0,0" Height="240">
+
+                                        </ListBox>
+                                    </StackPanel>
+                                </Grid>
+
+                            </GroupBox>
+
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+
+        </TabControl>
+    </Grid>
+</Window>
