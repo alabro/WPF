@@ -28,7 +28,7 @@ namespace Luksmedicus
         SQLiteConnection sqlite_conn;
         SQLiteCommand sqlite_cmd;
 
-        
+        private DocumentCreator creator = new DocumentCreator();
 
         public MainWindow()
         {
@@ -108,14 +108,198 @@ namespace Luksmedicus
 
         private void lboxFirmi_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            lbPregledivoFirma.Items.Clear();
             ListBox listBox = sender as ListBox;
             var item = listBox.SelectedItem as ListBoxItem;
             if (item != null)
             {
-                //TODO FILL VRABOTENI
-                Console.WriteLine(item.Content.ToString());
+
+                ClearInfo();
+
+                var naziv = item.Content.ToString();
+
+                FillFirmaInfo(naziv);
+
+                GetSumPregledi(naziv);
+
+                FillLboxPreglediFirma(naziv);
+
+            }
+        }
+
+        private void FillLboxPreglediFirma(String text)
+        {
+            using (SQLiteConnection con = new SQLiteConnection(ConfigurationManager.ConnectionStrings["Database"].ToString()))
+            {
+                con.Open();
+
+                string stm = "SELECT pregled.datum, vraboten.ime_prezime, pregled.cena, plateno, tip FROM pregled,vraboten WHERE vraboten.naziv_firma = "
+                    + '"' + text + '"' + " AND vraboten.id = pregled.id_vraboten ORDER BY pregled.datum DESC;";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(stm, con))
+                {
+                    using (SQLiteDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+
+
+                            ListBoxItem litem = new ListBoxItem();
+                            StackPanel sp = new StackPanel();
+                            sp.Orientation = Orientation.Horizontal;
+
+                            Label lb = new Label();
+                            lb.Content = rdr["datum"].ToString().Split(' ')[0];
+                            lb.Width = 100;
+                            sp.Children.Add(lb);
+
+                            Label ld = new Label();
+                            ld.Content = rdr["ime_prezime"].ToString();
+                            ld.Width = 250;
+                            lb.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            sp.Children.Add(ld);
+
+                            var tip = "";
+
+                            switch (rdr["tip"].ToString())
+                            {
+                                case "1":
+                                    tip = "Систематски";
+                                    break;
+                                case "2":
+                                    tip = "Дополнителен";
+                                    break;
+                                case "3":
+                                    tip = "Проширен";
+                                    break;
+                                case "4":
+                                    tip = "Специфичен";
+                                    break;
+                                case "5":
+                                    tip = "Насочен";
+                                    break;
+                            }
+
+
+
+                            Label td = new Label();
+                            td.Content = tip;
+                            td.Width = 100;
+                            td.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            sp.Children.Add(td);
+
+                            Label cd = new Label();
+                            cd.Content = rdr["cena"].ToString() + ",00 MKD";
+                            cd.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                            sp.Children.Add(cd);
+
+
+
+                            litem.Content = sp;
+                            litem.Background = (rdr["plateno"].ToString() == "True" ? Brushes.LightGreen : Brushes.Tomato);
+                            lbPregledivoFirma.Items.Add(litem);
+
+
+                            // TODO fix
+                            // dpDatumRagjanje.SelectedDate = Convert.ToDateTime(rdr["datum_rag"].ToString() + " 00:00:00");
+                        }
+                    }
+                }
+
+                con.Close();
+            }
+        }
+
+        private void ClearInfo()
+        {
+            imefirmainfo.Text = "Име на фирма: ";
+            adresafirmainfo.Text = "Адреса: ";
+            edbfirmainfo.Text = "ЕДБ: ";
+            dolziinfo.Text = "Должи: 0,00 MKD";
+            platenoinfo.Text = "Платено: 0,00 MKD";
+        }
+
+        private void GetSumPregledi(String nazivFirma)
+        {
+
+            //SUM PLATENI
+
+            using (SQLiteConnection con = new SQLiteConnection(ConfigurationManager.ConnectionStrings["Database"].ToString()))
+            {
+                con.Open();
+
+                string command = "SELECT SUM(pregled.cena) AS cena, plateno FROM pregled,vraboten WHERE vraboten.naziv_firma = "
+                        + '"' + nazivFirma + '"' + " AND vraboten.id = pregled.id_vraboten GROUP BY plateno ORDER BY pregled.datum DESC;";
+
+
+                using (SQLiteCommand cmd = new SQLiteCommand(command, con))
+                {
+
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    {
+                       
+                        var plateno = "0";
+                        var dolzi = "0";
+
+                        while (reader.Read())
+                        {
+                            if (reader["plateno"].ToString().Equals("True"))
+                            {
+                                plateno = reader["cena"].ToString();
+                            }
+                            else
+                            {
+                                dolzi = reader["cena"].ToString();
+                            }
+
+                        }
+
+                        dolziinfo.Text = "Должи: " + dolzi + ",00 MKD";
+                       
+                        platenoinfo.Text = "Платено: " + plateno + ",00 MKD";
+                        
+
+                    }
+
+                }
+
+
+                con.Close();
+
             }
 
+
+
+        }
+
+        private void FillFirmaInfo(String nazivFirma)
+        {
+            using (SQLiteConnection con = new SQLiteConnection(ConfigurationManager.ConnectionStrings["Database"].ToString()))
+            {
+                con.Open();
+
+                string command = "SELECT naziv,adresa,edb FROM firmi WHERE naziv=" + '"' + nazivFirma + '"' + ";";
+
+
+                using (SQLiteCommand cmd = new SQLiteCommand(command, con))
+                {
+
+                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            imefirmainfo.Text = "Име на фирма: " + reader["naziv"].ToString();
+                            adresafirmainfo.Text = "Адреса: " + reader["adresa"].ToString();
+                            edbfirmainfo.Text = "ЕДБ: " + reader["edb"].ToString();
+                        }
+                    }
+
+                }
+
+
+                con.Close();
+
+            }
         }
 
         private void cboxFirmi_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -186,7 +370,7 @@ namespace Luksmedicus
                                     tip = "Периодичен специфичен";
                                     break;
                                 case "5":
-                                    tip = "Насоче";
+                                    tip = "Насочен";
                                     break;
                             }
                             //TODO среди формат и договор како да изгледат.
@@ -403,7 +587,6 @@ namespace Luksmedicus
             if (lboxVraboteni.Items.Count == 0)
             {
                 ListBoxItem item = new ListBoxItem();
-                //TODO смисли подобра фраза
                 item.Content = "Нема вработени";
                 item.IsEnabled = false;
                 lboxVraboteni.Items.Add(item);
@@ -445,7 +628,7 @@ namespace Luksmedicus
 
             MessageBox.Show(tbImeVraboten.Text + " e внесен во базата.", "Успешно е внесен нов вработен во фирмата " + cboxFirmi.SelectedValue.ToString());
 
-            lboxVraboteni.SelectedIndex = lboxVraboteni.Items.Count - 1;
+            lboxVraboteni.SelectedIndex = lboxVraboteni.Items.Count;
 
             FillEmployees(cboxFirmi.SelectedValue.ToString());
         }
@@ -471,6 +654,7 @@ namespace Luksmedicus
         protected void addPregled(object sender, EventArgs e)
         {
             
+
             if (rbSistematski.IsChecked == false && rbDopolnitelen.IsChecked == false &&
                 rbSpecifichen.IsChecked == false && rbNasochen.IsChecked == false && rbProshiren.IsChecked == false)
             {
@@ -490,6 +674,7 @@ namespace Luksmedicus
             rdr.Read();
             vrabID = Int32.Parse(rdr["id"].ToString());
             rdr.Close();
+
 
 
             int tip = 0;
@@ -514,6 +699,79 @@ namespace Luksmedicus
 
             FillLboxPregledi(vrabID);
 
+            ComboBoxItem item = cboxFirmi.SelectedItem as ComboBoxItem;
+
+            var index = lboxFirmi.SelectedIndex;
+            lboxFirmi.SelectedIndex = -1;
+            lboxFirmi.SelectedIndex = index;
+
+
+            creator.ime_vraboten = tbImeVraboten.Text.ToString();
+            creator.mesto_ragjanje = tbMestoRagjanje.Text.ToString();
+            var cbxit = cboxFirmi.SelectedItem as ComboBoxItem;
+            creator.naziv_firma = cbxit.Content.ToString();
+            creator.GenerateDocs();
+            
+        }
+
+        private void btnNaplati_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (lboxFirmi.SelectedIndex != -1)
+            {
+                ListBoxItem item = lboxFirmi.SelectedItem as ListBoxItem;
+
+                using (SQLiteConnection con = new SQLiteConnection(ConfigurationManager.ConnectionStrings["Database"].ToString()))
+                {
+                    con.Open();
+
+                    string command = "UPDATE pregled SET plateno=1 WHERE id IN (SELECT pregled.id FROM pregled,vraboten WHERE vraboten.naziv_firma="+'"' + item.Content.ToString() + '"' +" AND vraboten.id = pregled.id_vraboten);";
+
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(command, con))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+
+                    con.Close();
+                    var index = lboxFirmi.SelectedIndex;
+                    lboxFirmi.SelectedIndex = -1;
+                    lboxFirmi.SelectedIndex = index;
+
+                    index = lboxVraboteni.SelectedIndex;
+                    lboxVraboteni.SelectedIndex = -1;
+                    lboxVraboteni.SelectedIndex = index;
+
+
+                }
+
+
+
+            }
+
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is TabControl)
+            {
+                switch ((sender as TabControl).SelectedIndex)
+                {
+                    case 0:
+                        Console.WriteLine("PRVIO TAB");
+                        break;
+
+                    case 1:
+                        Console.WriteLine("VTORIO TAB");
+                        break;
+
+                    default:
+                        Console.WriteLine("MANEKENKA TAB");
+                        break;
+                }
+            }
+            
 
         }
 
