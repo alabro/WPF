@@ -15,7 +15,8 @@ using System.IO;
 using System.Configuration;
 using System.Data;
 using System.Linq;
-using System.Data.Entity;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Sqlite;
 
 namespace Luksmedicus
 {
@@ -31,9 +32,16 @@ namespace Luksmedicus
         public MainWindow()
         {
             InitializeComponent();
+
+            using (var db = new DatabaseContext())
+            {
+                db.Database.EnsureCreated();
+            }
+
+
             InitializeCustomeDatePicker();
             FillLboxFirmi();
-            FillCboxFirmi();
+            //FillCboxFirmi();
             dpDatumPregled.Text = DateTime.Now.ToShortDateString();
 
 
@@ -892,6 +900,16 @@ namespace Luksmedicus
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Business> Businesss { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = "luksmed.db" };
+            var connectionString = connectionStringBuilder.ToString();
+            var connection = new SqliteConnection(connectionString);
+
+            optionsBuilder.UseSqlite(connection);
+        }
+
     }
 
 

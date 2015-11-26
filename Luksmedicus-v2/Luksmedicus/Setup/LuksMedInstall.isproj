@@ -28,10 +28,4 @@
 		</TaggedOutputs> -->
 	</ItemGroup>
 	<Import Project="$(MSBuildExtensionsPath32)\InstallShield\2015Limited\InstallShield.targets"/>
-	<ItemGroup>
-		<ProjectReference Include="..\Luksmedicus\Luksmedicus.csproj">
-			<Name>Luksmedicus</Name>
-			<Project>{567F0023-42EE-4097-B8A0-31C729126D86}</Project>
-		</ProjectReference>
-	</ItemGroup>
 </Project>
