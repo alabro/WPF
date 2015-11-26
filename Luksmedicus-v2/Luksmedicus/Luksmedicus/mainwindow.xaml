@@ -2,11 +2,16 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="Luksmedicus.MainWindow"
-        Title="Лукс Mедикус" WindowState="Maximized" WindowStartupLocation="CenterScreen" d:DesignHeight="795" >
+        Title="Лукс Mедикус" WindowState="Maximized" WindowStartupLocation="CenterScreen" d:DesignHeight="795" Loaded="Window_Loaded" >
 
 
     <Grid>
-        <TabControl SelectionChanged="TabControl_SelectionChanged">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="675*"/>
+            <ColumnDefinition Width="36*"/>
+            <ColumnDefinition Width="49*"/>
+        </Grid.ColumnDefinitions>
+        <TabControl Grid.ColumnSpan="3">
             <TabItem Header="Правни лица">
                 <Grid Margin="20">
 
@@ -98,7 +103,7 @@
                                             <TextBlock x:Name="platenoinfo" TextAlignment="Left"><Run Text="Платено:"/></TextBlock>
                                             <TextBlock x:Name="dolziinfo" TextAlignment="Left"><Run Text="Должи:"/></TextBlock>
                                         </StackPanel>
-                                        <Button x:Name="btnNaplati" Width="150" HorizontalAlignment="Right" Click="btnNaplati_Click"> Наплати </Button>
+                                        <Button x:Name="btnNaplati" Width="150" HorizontalAlignment="Right" Click="btnNaplati_Click">Наплати</Button>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>
