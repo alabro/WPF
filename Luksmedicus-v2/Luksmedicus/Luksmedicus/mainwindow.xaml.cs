@@ -33,14 +33,56 @@ namespace Luksmedicus
             InitializeComponent();
             InitializeCustomeDatePicker();
             FillLboxFirmi();
-            //FillCboxFirmi();
+            FillCboxFirmi();
+            dpDatumPregled.Text = DateTime.Now.ToShortDateString();
+
+
+
+            //EmptyTables();
+
+        }
+
+        private static void EmptyTables()
+        {
+            using (var db = new DatabaseContext())
+            {
+                var rows = from o in db.Employees
+                           select o;
+                foreach (var row in rows)
+                {
+                    db.Employees.Remove(row);
+                }
+                db.SaveChanges();
+
+            }
+
+            using (var db = new DatabaseContext())
+            {
+                var rows = from o in db.Reviews
+                           select o;
+                foreach (var row in rows)
+                {
+                    db.Reviews.Remove(row);
+                }
+                db.SaveChanges();
+
+            }
+
+            using (var db = new DatabaseContext())
+            {
+                var rows = from o in db.Businesss
+                           select o;
+                foreach (var row in rows)
+                {
+                    db.Businesss.Remove(row);
+                }
+                db.SaveChanges();
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            dpDatumPregled.Text = DateTime.Now.ToShortDateString();
-            FillLboxFirmi();
-            FillCboxFirmi();
+            
         }
 
 

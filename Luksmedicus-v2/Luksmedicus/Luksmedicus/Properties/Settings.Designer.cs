@@ -22,5 +22,16 @@ namespace Luksmedicus.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=.\\SQLEXPRESS;Initial Catalog=Luksmedicus.BloggingContext;Integrated S" +
+            "ecurity=True")]
+        public string Luksmedicus_BloggingContextConnectionString {
+            get {
+                return ((string)(this["Luksmedicus_BloggingContextConnectionString"]));
+            }
+        }
     }
 }
